@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	pthread_mutex_init(&total_lock,NULL);
 	readf(fp);
 	for(i=0;i<NUM_THREADS;i++){
-		rc=pthread_create(&threads[i],NULL,sub_string,(void *)i);
+		rc=pthread_create(&threads[i],NULL,sub_string,(void *)(long)i);
 		if (rc){
 			printf("ERROR: return error from pthread_create() is %d\n", rc);
 			exit(-1);
@@ -67,12 +67,48 @@ int readf(FILE *fp)
 	nlocal=n1/NUM_THREADS;  /*data length held by process*/
 	if(s1==NULL || s2==NULL ||n1<n2)  /*when error exit*/
 		return -1;
+	return 0;
 }
 
 void *sub_string(void *threadid) 	/*each process searches in the string with the step of nprocs until it reach or beyond*/ 
 	/*the (n1-n2)th char which is the last possible beginning of the substring*/
 {
+	/*NOTES:
+	*	There was an error with getting the threadid for some reason so I had to edit main() to get it to work properly -> (void *)(long)i)
+	*	The compiler was also complaining about there being no return so I just returned NULL to get it to stop complaining
+	*	
+	*	Follows the outline of substring.c except the start is at where the threads are based on nlocal.
+	*	Mutex for updating total
+	*
+	*/
 
+	int lthread = (long)threadid;
+	int start = lthread * nlocal;
+	int end, count, i, j, k;
+
+	if(lthread != NUM_THREADS - 1){
+		end = start + nlocal;
+	}else{
+		end = n1;
+	}
+
+	for(i = start; i<=(end-1); i++){
+		count = 0;
+		for(j = i, k = 0; k < n2; j++, k++){
+			if(*(s1+j)!=*(s2+k)){
+				break;
+			}else{
+				count++;
+			}
+			if(count == n2){
+				pthread_mutex_lock(&total_lock);
+				total++;
+				pthread_mutex_unlock(&total_lock);
+			}
+
+		}
+	}
+	return NULL;
 }
 
 
