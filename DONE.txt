@@ -1,0 +1,22 @@
+Lauren Miller 1002200693
+
+
+I wasn't sure if I needed to add the txt files so I did anyway just incase. 
+
+Assignment 1: String_pthread.c & strings.txt
+NOTES:
+	*	There was an error with getting the threadid for some reason so I had to edit main() to get it to work properly -> (void *)(long)i)
+	*	The compiler was also complaining about there being no return so I just returned NULL to get it to stop complaining
+    *	Follows the outline of substring.c except the start is at where the threads are based on nlocal.
+	*	Mutex for updating total
+
+Assignment 2: producer_consumer.c & message.txt
+
+Creates 2 threads.
+Producer will read the file and put characters in the buffer.
+Consumer takes characters from the buffer and prints them out.
+
+Assignment 3: my_list-forming.c
+
+Essentially I modified the original file to have the threads make all the nodes at once instead of one by one. One by one leads to a lot of waiting. Changed the trylock to lock in order to prevent more time being spent checking on trylock.
+Results are more noticeable when K is changed and when the number of threads is higher.
